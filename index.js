@@ -2,8 +2,7 @@ import { Octokit } from "octokit";
 import dotenv from "dotenv";
 dotenv.config();
 
-// TODO: allow multiple configuration updates
-const [, , packageName, packageVersion] = process.argv;
+const [, , ...packageUpdates] = process.argv;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 const sourceBranchName = "update-packagejson";
@@ -38,7 +37,10 @@ const updateOriginalFile = async () => {
     packageJson.dependencies = {};
   }
 
-  packageJson.dependencies[packageName] = packageVersion;
+  packageUpdates.forEach((arg) => {
+    const [packageName, packageVersion] = arg.split(":");
+    packageJson.dependencies[packageName] = packageVersion;
+  });
 
   console.log("File is updated!");
   return { content: packageJson, sha };
